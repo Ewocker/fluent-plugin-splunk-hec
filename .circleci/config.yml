@@ -52,24 +52,24 @@ jobs:
   #         command: |
   #           .circleci/integration/test.sh
 
-  push:
-    docker:
-      - image: circleci/ruby:2.6.1-node-browsers
-    working_directory: ~/repo
-    steps:
-      - attach_workspace:
-          at: /tmp
-      - checkout
-      - setup_remote_docker:
-          reusable: true
-      - run:
-          name: Push rubygem to s3
-          command: |
-            .circleci/push_gem.sh
-      - run:
-          name: Build and push docker image to ecr
-          command: |
-            .circleci/build_and_push.sh
+  # push:
+  #   docker:
+  #     - image: circleci/ruby:2.6.1-node-browsers
+  #   working_directory: ~/repo
+  #   steps:
+  #     - attach_workspace:
+  #         at: /tmp
+  #     - checkout
+  #     - setup_remote_docker:
+  #         reusable: true
+  #     - run:
+  #         name: Push rubygem to s3
+  #         command: |
+  #           .circleci/push_gem.sh
+  #     - run:
+  #         name: Build and push docker image to ecr
+  #         command: |
+  #           .circleci/build_and_push.sh
 
   release:
     docker:
@@ -102,15 +102,15 @@ workflows:
       # - test:
       #     requires:
       #       - build
-      - push:
+      # - push:
+      #     requires:
+      #       - build
+      #     filters:
+      #       branches:
+      #         only: non-root
+      - release:
           requires:
             - build
           filters:
             branches:
               only: non-root
-      # - release:
-      #     requires:
-      #       - build
-      #     filters:
-      #       branches:
-      #         only: master

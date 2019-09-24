@@ -24,12 +24,12 @@ RUN gem install -N --user-install fluentd -v "1.4.0" \
  && gem install -N --user-install fluent-plugin-jq -v "0.5.1" \
 #  && gem install -N --user-install fluent-plugin-kubernetes_metadata_filter -v "2.1.2" \
  && gem install -N --user-install oj -v "3.5.1" \
- && gem install -N --user-install /tmp/*.gem \
- && dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" \
- && wget -O /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.1/dumb-init_1.2.1_$dpkgArch \
- && chmod +x /usr/bin/dumb-init
+ && gem install -N --user-install /tmp/*.gem
 
 USER root
+RUN dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" \
+ && wget -O /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.1/dumb-init_1.2.1_$dpkgArch \
+ && chmod +x /usr/bin/dumb-init
 RUN apt-get purge -y --auto-remove \
                   -o APT::AutoRemove::RecommendsImportant=false \
                   $buildDeps \
@@ -39,11 +39,9 @@ RUN apt-get purge -y --auto-remove \
 USER 1000
 WORKDIR /home/fluent
 
-RUN mkdir -p /fluentd/etc
-
  # See https://packages.debian.org/stretch/amd64/libjemalloc1/filelist
 ENV LD_PRELOAD "/usr/lib/x86_64-linux-gnu/libjemalloc.so.1"
-COPY --chown=1000:1000 entrypoint.sh /fluent/entrypoint.sh
+COPY --chown=1000:1000 entrypoint.sh /home/fluent/entrypoint.sh
 
-ENTRYPOINT ["/fluentd/entrypoint.sh"]
+ENTRYPOINT ["/home/fluentd/entrypoint.sh"]
 CMD ["-h"]
